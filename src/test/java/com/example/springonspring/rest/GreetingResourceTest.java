@@ -8,16 +8,27 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-public class GreetingResourceTest {
+class GreetingResourceTest {
 
     @Test
-    public void respondsCorrectly() throws Exception {
+    void respondsCorrectly() throws Exception {
         GreetingResource greetingResource = new GreetingResource();
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(greetingResource).build();
 
-        mockMvc.perform(MockMvcRequestBuilders.get(GreetingResource.BASE_PATH + "/hello"))
+        mockMvc.perform(MockMvcRequestBuilders.get(GreetingResource.BASE_PATH + GreetingResource.HELLO_PATH))
                .andDo(MockMvcResultHandlers.print())
                .andExpect(jsonPath("$").value("Greetings fellow Stranger!"));
+    }
+
+    @Test
+    void doesntAcceptEmptyName() throws Exception {
+        GreetingResource greetingResource = new GreetingResource();
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(greetingResource).build();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(GreetingResource.BASE_PATH + GreetingResource.HELLO_PATH
+                + "/ "))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(jsonPath("$").value("Hi buddy !"));
     }
 
 }
