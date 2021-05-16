@@ -1,18 +1,20 @@
 package com.example.springonspring.rest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
+@Slf4j
 @Validated
 @RestController // combines: @Controller, @ResponseBody
 @RequestMapping(path = GreetingResource.BASE_PATH)
@@ -33,11 +35,23 @@ public class GreetingResource {
         return Collections.singletonMap("response", String.format("Hi %s !", name));
     }
 
-/*    @GetMapping
-    @RequestMapping(path = "/hello", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String greet(Model model) {
-        model.addAttribute("Greetings fellow Stranger!");
-        return "hello";
-    }*/
+    @PostMapping
+    @RequestMapping(path = HELLO_PATH + "/photo", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> greetByPhoto(@RequestPart("image") MultipartFile image) {
+        log.info("Received file, name={}, size={}", image.getName(), image.getSize());
+        processImage(image);
+        return Collections.singletonMap("response", "Hi you're looking good!");
+    }
+
+
+    private void processImage(MultipartFile image) {
+        try(BufferedReader data = new BufferedReader(new InputStreamReader(image.getInputStream()));
+            FileWriter writer = new FileWriter(String.valueOf(Paths.get(".")))) {
+            data.transferTo(writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
