@@ -1,8 +1,12 @@
 package com.example.springonspring.rest;
 
+import com.example.springonspring.rest.exceptions.GreetingException;
+import com.example.springonspring.rest.exceptions.InvalidGreetingContentValueException;
+import com.example.springonspring.rest.exceptions.MistakeGreetingException;
 import com.example.springonspring.rest.service.GreetingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,14 +27,15 @@ import java.util.Map;
 @RequestMapping(path = GreetingResource.BASE_PATH)
 public class GreetingResource {
 
-     static final String BASE_PATH = "/greet";
-     static final String HELLO_PATH = "/hello";
+    static final String BASE_PATH = "/greet";
+    static final String HELLO_PATH = "/hello";
+    static final String BAD_PATH = "/mistake";
 
-     private final GreetingService greetingService;
+    private final GreetingService greetingService;
 
-     public GreetingResource(GreetingService greetingService) {
-         this.greetingService = greetingService;
-     }
+    public GreetingResource(GreetingService greetingService) {
+        this.greetingService = greetingService;
+    }
 
     @GetMapping
     @RequestMapping(path = HELLO_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -41,6 +46,9 @@ public class GreetingResource {
     @GetMapping
     @RequestMapping(path = HELLO_PATH + "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, String> greet(@Size(min = 1, max = 5) @PathVariable String name) {
+        if (StringUtils.hasLength(name)) { // fixme: mb move out this logic somewhere else
+            throw new InvalidGreetingContentValueException("Name shouldn't be null");
+        }
         return Collections.singletonMap("response", String.format("Hi %s !", name));
     }
 
@@ -63,6 +71,12 @@ public class GreetingResource {
             log.error("Failed to process multipart request", e);
         }
         return Collections.singletonMap("response", "Hi you're looking good!");
+    }
+
+    @GetMapping
+    @RequestMapping(path = BAD_PATH)
+    public String fail() {
+        throw new MistakeGreetingException("You've moved aside from the route.");
     }
 
 }

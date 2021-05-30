@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 class GreetingResourceIT {
@@ -30,12 +31,16 @@ class GreetingResourceIT {
     @Test
     void doesntAcceptEmptyName() throws Exception {
         GreetingResource greetingResource = new GreetingResource(greetingService);
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(greetingResource).build();
+        MockMvc mockMvc = MockMvcBuilders
+                .standaloneSetup(greetingResource)
+                .setControllerAdvice(GreetingAdvice.class)
+                .build();
 
         mockMvc.perform(MockMvcRequestBuilders.get(GreetingResource.BASE_PATH + GreetingResource.HELLO_PATH
-                + "/ "))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(jsonPath("$").value("Hi buddy !"));
+                                                           + "/ "))
+               .andDo(MockMvcResultHandlers.print())
+               .andExpect(jsonPath("$").value("Name shouldn't be null"))
+               .andExpect(status().is(400));
     }
 
 }
