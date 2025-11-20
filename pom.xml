@@ -14,7 +14,7 @@
     <name>spring-on-spring</name>
     <description>My Demo project for Spring Boot stuff</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>

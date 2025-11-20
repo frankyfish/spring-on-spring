@@ -1,19 +1,13 @@
 package com.example.springonspring.rest;
 
-import com.example.springonspring.rest.exceptions.GreetingException;
-import com.example.springonspring.rest.exceptions.InvalidGreetingContentValueException;
 import com.example.springonspring.rest.exceptions.MistakeGreetingException;
 import com.example.springonspring.rest.service.GreetingService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Size;
@@ -38,18 +32,15 @@ public class GreetingResource {
     }
 
     @GetMapping
-    @RequestMapping(path = HELLO_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public String greet() {
         return "Greetings fellow Stranger!"; // returns plain string, not a JSON
     }
     //https://www.baeldung.com/javax-validation
     @GetMapping
-    @RequestMapping(path = HELLO_PATH + "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, String> greet(@Size(min = 1, max = 5) @PathVariable String name) {
-        if (StringUtils.hasLength(name)) { // fixme: mb move out this logic somewhere else
-            throw new InvalidGreetingContentValueException("Name shouldn't be null");
-        }
-        return Collections.singletonMap("response", String.format("Hi %s !", name));
+    @RequestMapping(path = HELLO_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> greet(@Size(min = 2, max = 5) @RequestParam("name") String name) {
+        return new ResponseEntity<>(String.format("Hi %s !", name), HttpStatus.OK);
     }
 
     /**
